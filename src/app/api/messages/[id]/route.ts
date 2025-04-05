@@ -1,4 +1,4 @@
-// premium-portfolio/src/app/api/messages/[id]/route.ts
+// src/app/api/messages/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { deleteMessage, initDatabase } from '@/lib/db';
 import { withAuth } from '@/lib/auth';
@@ -12,14 +12,18 @@ interface AuthenticatedRequest extends Request {
 }
 
 interface RouteContext { // Renamed for clarity
-  params: { id: string };
+  params: { id: string } | Promise<{ id: string }>;
 }
 
 const deleteHandler = async (req: AuthenticatedRequest, context: RouteContext) => { // Use the context parameter name
-  // Directly access id from context.params
-  const id = context.params.id;
 
   try {
+    const resolvedContext = await context;
+    const resolvedParams = resolvedContext.params;
+
+    const awaitedParams = await context.params;
+    const id = awaitedParams.id;
+
     // Validate the ID immediately after accessing it
     if (!id || typeof id !== 'string') {
       console.warn("Invalid message ID received for deletion:", id);
@@ -30,8 +34,7 @@ const deleteHandler = async (req: AuthenticatedRequest, context: RouteContext) =
     }
 
     console.log(`Attempting to delete message with ID: ${id} by user: ${req.user?.username}`);
-
-    const success = await deleteMessage(id); // Await the async DB operation
+    const success = await deleteMessage(id);
 
     if (!success) {
       console.warn(`Message not found for deletion: ${id}`);
@@ -45,7 +48,7 @@ const deleteHandler = async (req: AuthenticatedRequest, context: RouteContext) =
     return NextResponse.json({ success: true, message: 'Message deleted successfully' }, { status: 200 });
 
   } catch (error: any) {
-    console.error(`Error deleting message ${id}:`, error); // Use the validated id variable
+    console.error(`Error deleting message`, error); // Use the validated id variable
     return NextResponse.json(
       { error: 'Failed to delete message', details: error.message },
       { status: 500 }

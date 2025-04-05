@@ -1,4 +1,4 @@
-// premium-portfolio/src/app/api/messages/[id]/read/route.ts
+// src/app/api/messages/[id]/read/route.ts
 import { NextResponse } from 'next/server';
 import { markMessageAsRead, initDatabase } from '@/lib/db';
 import { withAuth } from '@/lib/auth';
@@ -12,15 +12,20 @@ interface AuthenticatedRequest extends Request {
 }
 
 interface RouteContext {
-    params: { id: string };
+    params: { id: string } | Promise<{ id: string }>;
 }
 
 // PATCH: Mark a message as read (protected)
-const patchHandler = async (req: AuthenticatedRequest, context: RouteContext) => { // Use the context parameter name
-  // Directly access id from context.params
-  const id = context.params.id;
+const patchHandler = async (req: AuthenticatedRequest, context: RouteContext) => {
 
   try {
+
+    const resolvedContext = await context;
+    const resolvedParams = resolvedContext.params;
+
+    const awaitedParams = await context.params;
+    const id = awaitedParams.id;
+
     // Validate the ID immediately after accessing it
     if (!id || typeof id !== 'string') {
       console.warn("Invalid message ID received:", id);
@@ -46,7 +51,7 @@ const patchHandler = async (req: AuthenticatedRequest, context: RouteContext) =>
     return NextResponse.json({ success: true, message: 'Message marked as read' }, { status: 200 });
 
   } catch (error: any) {
-    console.error(`Error marking message ${id} as read:`, error); // Use the validated id variable
+    console.error(`Error marking message`, error); // Use the validated id variable
     return NextResponse.json(
       { error: 'Failed to update message status', details: error.message },
       { status: 500 }

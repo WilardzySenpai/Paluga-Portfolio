@@ -1,4 +1,17 @@
+// src/app/admin/dashboard/page.tsx
 "use client"
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 import React, { useState, useEffect } from 'react'; // Added React
 import { useRouter } from 'next/navigation';
@@ -42,10 +55,14 @@ type PasswordFormValues = z.infer<typeof passwordFormSchema>;
 export default function AdminDashboard() {
   const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState<boolean>(true); // Messages loading
+  const [loading, setLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<string>('messages');
   const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
-  const [isChangingPassword, setIsChangingPassword] = useState<boolean>(false); // Password change loading
+  const [isChangingPassword, setIsChangingPassword] = useState<boolean>(false);
+
+  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+  const [messageToDeleteId, setMessageToDeleteId] = useState<string | null>(null);
+  const [isDeletingMessage, setIsDeletingMessage] = useState<boolean>(false);
 
   // Fetch messages on component mount
   useEffect(() => {
@@ -136,31 +153,44 @@ export default function AdminDashboard() {
     }
   };
 
-  // Confirmation before deleting
-  const handleDeleteMessage = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this message? This action cannot be undone.')) {
-      return;
-    }
+  // handleDeleteMessage function:
+  const handleDeleteMessage = (id: string) => {
+    setMessageToDeleteId(id); // Store the ID of the message to delete
+    setIsDeleteAlertOpen(true); // Open the alert dialog
+  };
+
+  // confirmDeleteMessage function:
+  const confirmDeleteMessage = async () => {
+    if (!messageToDeleteId) return; // Safety check
+
+    setIsDeletingMessage(true); // Set loading state for the button
+    const deleteToastId = toast.loading("Deleting message...");
 
     try {
-      const response = await fetch(`/api/messages/${id}`, {
+      // Use the correct API endpoint for deleting a specific message
+      const response = await fetch(`/api/messages/${messageToDeleteId}`, {
         method: 'DELETE',
       });
 
       if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error('Message not found.');
-        }
-        throw new Error('Failed to delete message.');
+        const errorData = await response.json().catch(() => ({ error: 'Failed to delete message.' }));
+        throw new Error(errorData.error || `Server error: ${response.status}`);
       }
 
       // Update the local state
-      setMessages(prev => prev.filter(message => message.id !== id));
+      setMessages(prev => prev.filter(message => message.id !== messageToDeleteId));
 
-      toast.success('Message deleted successfully');
+      toast.success('Message deleted successfully', { id: deleteToastId });
+      setIsDeleteAlertOpen(false); // Close the dialog on success
+
     } catch (error: any) {
       console.error('Error deleting message:', error);
-      toast.error(`Failed to delete message: ${error.message}`);
+      toast.error(`Failed to delete message: ${error.message}`, { id: deleteToastId });
+      // Keep dialog open on error? Or close? User preference. Closing is often less disruptive.
+      setIsDeleteAlertOpen(false);
+    } finally {
+      setIsDeletingMessage(false); // Reset loading state
+      setMessageToDeleteId(null); // Clear the stored ID
     }
   };
 
@@ -408,16 +438,76 @@ export default function AdminDashboard() {
                                     <span className="hidden sm:inline">Mark Read</span> {/* Hide text on small screens */}
                                   </Button>
                                 )}
-                                <Button
+
+                                {/* --- START: AlertDialog Implementation --- */}
+                                <AlertDialog open={isDeleteAlertOpen && messageToDeleteId === message.id} onOpenChange={(open: boolean | ((prevState: boolean) => boolean)) => {
+                                  // Only trigger state changes related to this specific dialog instance
+                                  if (messageToDeleteId === message.id) {
+                                    setIsDeleteAlertOpen(open);
+                                    if (!open) {
+                                      // Reset message ID if dialog is closed (e.g., by clicking overlay/cancel)
+                                      setMessageToDeleteId(null);
+                                    }
+                                  }
+                                }}>
+                                  <AlertDialogTrigger asChild>
+                                    {/* This button now triggers the dialog */}
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-700 dark:hover:bg-red-950/50 dark:hover:text-red-300 flex items-center gap-1"
+                                      title="Delete Message"
+                                      onClick={() => handleDeleteMessage(message.id)} // Opens the dialog via state change
+                                    >
+                                      <Trash2Icon className="h-4 w-4" />
+                                      <span className="hidden sm:inline">Delete</span>
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  {/* Render content only if this is the message being targeted */}
+                                  {messageToDeleteId === message.id && (
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          This action cannot be undone. This will permanently delete the message
+                                          from <span className="font-medium">{message.name || 'Unknown Sender'}</span> about "{message.subject}".
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel disabled={isDeletingMessage}> {/* Disable if deleting */}
+                                          Cancel
+                                        </AlertDialogCancel>
+                                        {/* Action button calls the new confirmation function */}
+                                        <AlertDialogAction
+                                          onClick={confirmDeleteMessage}
+                                          disabled={isDeletingMessage} // Disable while deleting
+                                          className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800" // Style as destructive
+                                        >
+                                          {isDeletingMessage ? (
+                                            <>
+                                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                              Deleting...
+                                            </>
+                                          ) : (
+                                            'Yes, delete message'
+                                          )}
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  )}
+                                </AlertDialog>
+                                {/* --- END: AlertDialog Implementation --- */}
+
+                                {/* <Button
                                   variant="outline"
                                   size="sm"
                                   className="text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-700 dark:hover:bg-red-950/50 dark:hover:text-red-300 flex items-center gap-1"
                                   onClick={() => handleDeleteMessage(message.id)}
                                   title="Delete Message"
                                 >
-                                  <Trash2Icon className="h-4 w-4" /> {/* Better delete icon */}
-                                  <span className="hidden sm:inline">Delete</span> {/* Hide text on small screens */}
-                                </Button>
+                                  <Trash2Icon className="h-4 w-4" />
+                                  <span className="hidden sm:inline">Delete</span>
+                                </Button> */}
                               </div>
                             </div>
 
@@ -434,84 +524,84 @@ export default function AdminDashboard() {
 
               {/* --- Profile Tab Content (UPDATED) --- */}
               {activeTab === 'profile' && (
-                 <Card>
-                   <CardHeader>
-                     <CardTitle className="flex items-center">
-                       <UserIcon className="h-5 w-5 mr-2" />
-                       <span>Profile Settings</span>
-                     </CardTitle>
-                     <CardDescription>
-                       Update your administrator password.
-                     </CardDescription>
-                   </CardHeader>
-                   <CardContent>
-                     {/* --- Password Change Form --- */}
-                     <Form {...passwordForm}>
-                       <form onSubmit={passwordForm.handleSubmit(handlePasswordChange)} className="space-y-6 max-w-md">
-                         <FormField
-                           control={passwordForm.control}
-                           name="currentPassword"
-                           render={({ field }) => (
-                             <FormItem>
-                               <FormLabel>Current Password</FormLabel>
-                               <FormControl>
-                                  <div className="relative">
-                                    <KeyRoundIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-                                    <Input type="password" placeholder="Enter your current password" {...field} className="pl-10"/>
-                                  </div>
-                               </FormControl>
-                               <FormMessage />
-                             </FormItem>
-                           )}
-                         />
-                         <FormField
-                           control={passwordForm.control}
-                           name="newPassword"
-                           render={({ field }) => (
-                             <FormItem>
-                               <FormLabel>New Password</FormLabel>
-                               <FormControl>
-                                 <div className="relative">
-                                    <KeyRoundIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-                                    <Input type="password" placeholder="Enter new password (min. 8 chars)" {...field} className="pl-10"/>
-                                  </div>
-                               </FormControl>
-                               {/* Optional: Add password strength indicator here */}
-                               <FormMessage />
-                             </FormItem>
-                           )}
-                         />
-                         <FormField
-                           control={passwordForm.control}
-                           name="confirmPassword"
-                           render={({ field }) => (
-                             <FormItem>
-                               <FormLabel>Confirm New Password</FormLabel>
-                               <FormControl>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <UserIcon className="h-5 w-5 mr-2" />
+                      <span>Profile Settings</span>
+                    </CardTitle>
+                    <CardDescription>
+                      Update your administrator password.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {/* --- Password Change Form --- */}
+                    <Form {...passwordForm}>
+                      <form onSubmit={passwordForm.handleSubmit(handlePasswordChange)} className="space-y-6 max-w-md">
+                        <FormField
+                          control={passwordForm.control}
+                          name="currentPassword"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Current Password</FormLabel>
+                              <FormControl>
                                 <div className="relative">
-                                    <KeyRoundIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-                                    <Input type="password" placeholder="Confirm your new password" {...field} className="pl-10"/>
-                                  </div>
-                               </FormControl>
-                               <FormMessage />
-                             </FormItem>
-                           )}
-                         />
-                         <Button type="submit" disabled={isChangingPassword} aria-busy={isChangingPassword}>
-                           {isChangingPassword ? (
-                              <span className="flex items-center justify-center">
-                                <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
-                                Updating...
-                              </span>
-                           ) : (
-                             'Update Password'
-                           )}
-                         </Button>
-                       </form>
-                     </Form>
-                     {/* --- End Password Change Form --- */}
-                   </CardContent>
-                 </Card>
+                                  <KeyRoundIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+                                  <Input type="password" placeholder="Enter your current password" {...field} className="pl-10" />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={passwordForm.control}
+                          name="newPassword"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>New Password</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <KeyRoundIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+                                  <Input type="password" placeholder="Enter new password (min. 8 chars)" {...field} className="pl-10" />
+                                </div>
+                              </FormControl>
+                              {/* Optional: Add password strength indicator here */}
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={passwordForm.control}
+                          name="confirmPassword"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Confirm New Password</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <KeyRoundIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+                                  <Input type="password" placeholder="Confirm your new password" {...field} className="pl-10" />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Button type="submit" disabled={isChangingPassword} aria-busy={isChangingPassword}>
+                          {isChangingPassword ? (
+                            <span className="flex items-center justify-center">
+                              <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                              Updating...
+                            </span>
+                          ) : (
+                            'Update Password'
+                          )}
+                        </Button>
+                      </form>
+                    </Form>
+                    {/* --- End Password Change Form --- */}
+                  </CardContent>
+                </Card>
               )}
 
               {/* --- Settings Tab Content (Keep As Is, but fix button action) --- */}

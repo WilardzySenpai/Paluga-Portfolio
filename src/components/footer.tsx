@@ -1,4 +1,4 @@
-// premium-portfolio/src/components/footer.tsx
+// src/components/footer.tsx
 "use client"
 
 import { motion } from 'framer-motion'

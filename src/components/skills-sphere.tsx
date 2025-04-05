@@ -1,4 +1,4 @@
-// premium-portfolio/src/components/skills-sphere.tsx
+// src/components/skills-sphere.tsx
 "use client"
 
 import React, { useRef, useState, useEffect, Suspense } from 'react' // Added React, Suspense

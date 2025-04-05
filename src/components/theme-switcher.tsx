@@ -1,3 +1,4 @@
+// src/components/theme-switcher.tsx
 "use client"
 
 import { useTheme } from "next-themes"
