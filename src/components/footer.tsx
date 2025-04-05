@@ -17,10 +17,10 @@ export function Footer() {
   const currentYear = new Date().getFullYear()
 
   // Placeholder links - replace with actual URLs
-  const githubUrl = "https://github.com/your-username";
-  const linkedinUrl = "https://linkedin.com/in/your-username";
+  const githubUrl = "https://github.com/wilardzysenpai";
+  const linkedinUrl = "https://linkedin.com/in/hachiki3819";
   const emailAddress = "mailto:paluga.willardjames.arlan@gmail.com";
-  const telNumber = "tel:+1234567890"; // Optional
+  const telNumber = "tel:+639122117178"; // Optional
 
   return (
     <footer className="relative border-t border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 py-16"> {/* Adjusted background slightly */}
