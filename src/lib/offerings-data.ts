@@ -1,3 +1,5 @@
+// src/lib/offering-data.ts
+
 import type { LucideIcon } from "lucide-react";
 import {
   Code2Icon,

@@ -1,3 +1,4 @@
+// src/components/sections/offerings-section.tsx
 "use client"
 
 import { useRef } from 'react'

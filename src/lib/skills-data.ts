@@ -1,3 +1,5 @@
+// src/lib/skills-data.ts
+
 // Define skill categories and their associated skills
 export type Skill = {
     name: string;

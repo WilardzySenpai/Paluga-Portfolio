@@ -1,3 +1,5 @@
+// src/lib/offering-data.ts
+
 export type Project = {
     id: string;
     title: string;

@@ -1,4 +1,4 @@
-// premium-portfolio/src/app/ClientBody.tsx
+// src/app/ClientBody.tsx
 "use client";
 
 import { useEffect } from "react";

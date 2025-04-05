@@ -1,3 +1,4 @@
+// src/components/sections/hero-section.tsx
 "use client"
 
 import { useEffect, useRef } from 'react'

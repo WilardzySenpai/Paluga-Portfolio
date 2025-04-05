@@ -1,4 +1,4 @@
-// premium-portfolio/src/app/page.tsx
+// src/app/page.tsx
 import { MainNav } from "@/components/main-nav";
 import { HeroSection } from "@/components/sections/hero-section";
 import { AboutSection } from "@/components/sections/about-section";
