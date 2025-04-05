@@ -48,7 +48,7 @@ export function AboutSection() {
               <div className="absolute -right-4 -bottom-4 w-full h-full border-2 border-purple-500 rounded-lg" />
               <div className="relative w-full h-full overflow-hidden rounded-lg">
                 <Image
-                  src="/paluga.jpg"
+                  src="/paluga.png"
                   alt="Developer Profile"
                   fill
                   className="object-cover"

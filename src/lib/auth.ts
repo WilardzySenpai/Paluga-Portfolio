@@ -62,60 +62,71 @@ export async function setAuthCookie(token: string): Promise<void> {
    });
 }
 
-// Get cookie remains synchronous
+// Get cookie
 export async function getAuthCookie(): Promise<string | undefined> {
-   return (await cookies()).get('auth_token')?.value;
+  const cookieStore = await cookies();
+  return cookieStore.get('auth_token')?.value;
 }
 
-// Remove cookie remains synchronous
+// Remove cookie
 export async function removeAuthCookie(): Promise<void> {
-   (await cookies()).delete('auth_token');
+  const cookieStore = await cookies();
+  cookieStore.delete('auth_token');
 }
 
 // Get current user (now async)
 export async function getCurrentUser(): Promise<JwtPayload | null> {
-   const token = getAuthCookie();
+   const token = await getAuthCookie();
    if (!token) return null;
    return await verifyToken(token);
 }
 
 // isAuthenticated (now async)
 export async function isAuthenticated(): Promise<boolean> {
-   return (await getCurrentUser()) !== null;
+  try {
+     return !!await getCurrentUser();
+  } catch (error) {
+     console.error('Authentication check failed:', error);
+     return false;
+  }
 }
 
 // hasRole (now async)
 export async function hasRole(role: string): Promise<boolean> {
    const user = await getCurrentUser();
-   return user !== null && user.role === role;
+   return !!user?.role && user.role === role;
 }
 
-// withAuth middleware needs to handle the async verifyToken
 export function withAuth(handler: (req: Request & { user?: JwtPayload }, params?: any) => Promise<Response | NextResponse>) {
-    return async (req: Request, params?: any) => { // params might be passed for dynamic routes
-        const token = (await cookies()).get('auth_token')?.value;
+  return async (req: Request, params?: any) => {
+      try {
+          const cookieStore = await cookies();
+          const token = cookieStore.get('auth_token')?.value;
 
-        if (!token) {
-        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-            status: 401,
-            headers: { 'Content-Type': 'application/json' },
-        });
-        }
+          if (!token) {
+              return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+                  status: 401,
+                  headers: { 'Content-Type': 'application/json' },
+              });
+          }
 
-        const decoded = await verifyToken(token); // Await verification
-        if (!decoded) {
-        // Clear invalid cookie
-        const response = new Response(JSON.stringify({ error: 'Invalid token' }), {
-            status: 401,
-            headers: { 'Content-Type': 'application/json' },
-        });
-        (await cookies()).delete('auth_token'); // Try deleting
-        return response;
-        }
+          const decoded = await verifyToken(token);
+          if (!decoded) {
+              cookieStore.delete('auth_token');
+              return new Response(JSON.stringify({ error: 'Invalid token' }), {
+                  status: 401,
+                  headers: { 'Content-Type': 'application/json' },
+              });
+          }
 
-        // Attach the user to the request for the handler
-        const reqWithUser = Object.assign(req, { user: decoded });
-
-        return handler(reqWithUser, params); // Pass params if they exist
-    };
+          const reqWithUser = Object.assign(req, { user: decoded });
+          return handler(reqWithUser, params);
+      } catch (error) {
+          console.error('Authentication middleware error:', error);
+          return new Response(JSON.stringify({ error: 'Internal server error' }), {
+              status: 500,
+              headers: { 'Content-Type': 'application/json' },
+          });
+      }
+  };
 }

@@ -8,6 +8,7 @@ import { generateSkillsPositions, type Skill } from '@/lib/skills-data'
 import { motion } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import * as THREE from 'three'; // Import THREE
+import { useSpring, animated } from '@react-spring/three';
 
 interface SkillSphereProps {
   skills: Skill[]
@@ -59,14 +60,14 @@ interface SkillNodeProps {
   position: [number, number, number];
   isDarkMode: boolean;
   delay: number;
-  isMobile: boolean; // Pass mobile flag
+  isMobile: boolean;
 }
 
 function SkillNode({ skill, position, isDarkMode, delay, isMobile }: SkillNodeProps) {
   const [hovered, setHovered] = useState(false);
   const [visible, setVisible] = useState(false);
-  const sphereRef = useRef<THREE.Mesh>(null!); // Use non-null assertion
-  const textRef = useRef<any>(null!); // Ref for text
+  const sphereRef = useRef(null);
+  const textRef = useRef<any>(null!); // Keep <any> or find specific Drei type
 
   // Animate in after delay
   useEffect(() => {
@@ -76,54 +77,47 @@ function SkillNode({ skill, position, isDarkMode, delay, isMobile }: SkillNodePr
     return () => clearTimeout(timer);
   }, [delay]);
 
-  useFrame((state) => {
-    // Billboard makes text always face camera, but we can add subtle hover effect
+  useFrame(() => {
     if (textRef.current) {
-        textRef.current.material.opacity = THREE.MathUtils.lerp(
-            textRef.current.material.opacity,
-            hovered ? 1 : 0.8, // Fade slightly when not hovered
-            0.1
-        );
+      textRef.current.material.opacity = THREE.MathUtils.lerp(
+        textRef.current.material.opacity,
+        hovered ? 1 : 0.8,
+        0.1
+      );
     }
-
-    // Scale sphere on hover
     if (sphereRef.current) {
-      const targetScale = hovered ? 1.3 : 1; // Smaller hover scale
-      sphereRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
+      // Cast the ref's current value if necessary for type safety within useFrame
+      const mesh = sphereRef.current as THREE.Mesh;
+      const targetScale = hovered ? 1.3 : 1;
+      mesh.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
     }
   });
 
-  // Handle pointer events
-  const handlePointerOver = (e: any) => { e.stopPropagation(); setHovered(true); document.body.style.cursor = 'pointer'};
-  const handlePointerOut = (e: any) => { setHovered(false); document.body.style.cursor = 'default'};
+  const handlePointerOver = (e: any) => { e.stopPropagation(); setHovered(true); document.body.style.cursor = 'pointer' };
+  const handlePointerOut = (e: any) => { setHovered(false); document.body.style.cursor = 'default' };
 
   if (!visible) return null;
 
-  const sphereSize = isMobile ? 0.15 + (skill.level / 25) : 0.2 + (skill.level / 20); // Smaller spheres on mobile
-  const fontSize = isMobile ? 0.18 : 0.25; // Smaller font on mobile
-  const textPositionOffset: [number, number, number] = isMobile ? [0, 0.3, 0] : [0, 0.4, 0]; // Adjust text position for smaller spheres
-  const textColor = isDarkMode ? '#E5E7EB' : '#1F2937'; // Use Tailwind gray colors for consistency
-  const sphereColor = skill.color || (isDarkMode ? '#A78BFA' : '#8B5CF6'); // Default to purple tones
+  const sphereSize = isMobile ? 0.15 + (skill.level / 25) : 0.2 + (skill.level / 20);
+  const fontSize = isMobile ? 0.18 : 0.25;
+  const textPositionOffset: [number, number, number] = isMobile ? [0, 0.3, 0] : [0, 0.4, 0];
+  const textColor = isDarkMode ? '#E5E7EB' : '#1F2937';
+  const sphereColor = skill.color || (isDarkMode ? '#A78BFA' : '#8B5CF6');
 
   return (
-    <motion.group // Wrap in motion.group for entry animation
-       position={position}
-       initial={{ scale: 0, opacity: 0 }}
-       animate={{ scale: 1, opacity: 1 }}
-       transition={{ delay, duration: 0.5, type: 'spring', stiffness: 100 }}
-    >
-      {/* Billboard ensures the text always faces the camera */}
+    // This motion.group should now work
+    <group position={position}>
       <Billboard>
         <Text
           ref={textRef}
           position={textPositionOffset}
           fontSize={fontSize}
           color={textColor}
-          font="/fonts/GeistVariableVF.woff2" // Use Geist font if available
+          font="/fonts/GeistVariableVF.woff2" // Ensure this font path is correct
           anchorX="center"
           anchorY="middle"
-          material-transparent={true} // Enable opacity changes
-          material-opacity={0.8} // Initial opacity
+          material-transparent={true}
+          material-opacity={0.8}
         >
           {skill.name}
         </Text>
@@ -133,20 +127,20 @@ function SkillNode({ skill, position, isDarkMode, delay, isMobile }: SkillNodePr
         ref={sphereRef}
         onPointerOver={handlePointerOver}
         onPointerOut={handlePointerOut}
-        castShadow // Allow sphere to cast shadow if lights are configured
+        castShadow
       >
         <sphereGeometry args={[sphereSize, 32, 32]} />
         <meshStandardMaterial
           color={sphereColor}
           emissive={sphereColor}
-          emissiveIntensity={hovered ? 0.5 : 0.15} // Adjusted intensity
+          emissiveIntensity={hovered ? 0.5 : 0.15}
           roughness={0.6}
-          metalness={0.1} // Add slight metalness
-          transparent // Needed if you want fade effects later
-          opacity={0.95} // Slightly transparent
+          metalness={0.1}
+          transparent
+          opacity={0.95}
         />
       </mesh>
-    </motion.group>
+    </group>
   );
 }
 
@@ -162,17 +156,17 @@ export function SkillsSphere({ skills }: SkillSphereProps) {
         {/* Adjust lighting */}
         <ambientLight intensity={0.6} />
         <directionalLight
-            position={[5, 5, 5]}
-            intensity={1.5}
-            castShadow
-            shadow-mapSize-width={1024}
-            shadow-mapSize-height={1024}
+          position={[5, 5, 5]}
+          intensity={1.5}
+          castShadow
+          shadow-mapSize-width={1024}
+          shadow-mapSize-height={1024}
         />
-         <pointLight position={[-5, -5, -10]} intensity={0.3} />
+        <pointLight position={[-5, -5, -10]} intensity={0.3} />
 
 
         <Suspense fallback={null}> {/* Suspense for async operations like font loading */}
-           <SkillsCloud skills={skills} />
+          <SkillsCloud skills={skills} />
         </Suspense>
 
         <OrbitControls
