@@ -1,0 +1,11 @@
+Unused dependencies
+* @react-spring/core
+* install
+* jsonwebtoken
+* next-auth
+* react-icons
+Unused devDependencies
+* @types/jsonwebtoken
+* eslint
+* eslint-config-next
+* postcss
