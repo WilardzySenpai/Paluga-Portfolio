@@ -3,7 +3,7 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { ArrowUpIcon, GithubIcon, LinkedinIcon, MailIcon } from 'lucide-react'
+import { ArrowUpIcon, Github, Linkedin , Mail, Coffee } from 'lucide-react'
 import { ThemeSwitcher } from '@/components/theme-switcher' // Correct path
 
 export function Footer() {
@@ -20,6 +20,7 @@ export function Footer() {
   const githubUrl = "https://github.com/wilardzysenpai";
   const linkedinUrl = "https://linkedin.com/in/hachiki3819";
   const emailAddress = "mailto:paluga.willardjames.arlan@gmail.com";
+  const kofiAddress = "https://ko-fi.com/hachiki_hoshino";
   const telNumber = "tel:+639122117178"; // Optional
 
   return (
@@ -57,7 +58,7 @@ export function Footer() {
                 className="text-zinc-500 hover:text-purple-600 dark:text-zinc-400 dark:hover:text-purple-400 transition-colors"
                 aria-label="GitHub Profile"
               >
-                <GithubIcon className="h-5 w-5" />
+                <Github className="h-5 w-5" />
               </a>
               <a
                 href={linkedinUrl}
@@ -66,14 +67,23 @@ export function Footer() {
                 className="text-zinc-500 hover:text-purple-600 dark:text-zinc-400 dark:hover:text-purple-400 transition-colors"
                 aria-label="LinkedIn Profile"
               >
-                <LinkedinIcon className="h-5 w-5" />
+                <Linkedin  className="h-5 w-5" />
               </a>
               <a
                 href={emailAddress}
                 className="text-zinc-500 hover:text-purple-600 dark:text-zinc-400 dark:hover:text-purple-400 transition-colors"
                 aria-label="Send Email"
               >
-                <MailIcon className="h-5 w-5" />
+                <Mail className="h-5 w-5" />
+              </a>
+              <a
+                href={kofiAddress}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-zinc-500 hover:text-purple-600 dark:text-zinc-400 dark:hover:text-purple-400 transition-colors"
+                aria-label="Ko-Fi Profile"
+              >
+                <Coffee className="h-5 w-5" />
               </a>
             </div>
           </div>

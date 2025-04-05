@@ -4,7 +4,7 @@
 import { useEffect, useRef } from 'react'
 import { motion, useInView, useAnimation } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { ArrowDownIcon, GithubIcon, LinkedinIcon, MailIcon } from 'lucide-react'
+import { ArrowDownIcon, Github, Linkedin, Mail, Coffee } from 'lucide-react'
 import Link from 'next/link'
 
 export function HeroSection() {
@@ -138,25 +138,25 @@ export function HeroSection() {
             animate={controls}
           >
             <motion.a
-              href="https://github.com/username"
+              href="https://github.com/wilardzysenpai"
               target="_blank"
               rel="noopener noreferrer"
               className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
               custom={0}
               variants={iconVariants}
             >
-              <GithubIcon className="h-6 w-6" />
+              <Github className="h-6 w-6" />
               <span className="sr-only">GitHub</span>
             </motion.a>
             <motion.a
-              href="https://linkedin.com/in/username"
+              href="https://linkedin.com/in/hachiki"
               target="_blank"
               rel="noopener noreferrer"
               className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
               custom={1}
               variants={iconVariants}
             >
-              <LinkedinIcon className="h-6 w-6" />
+              <Linkedin className="h-6 w-6" />
               <span className="sr-only">LinkedIn</span>
             </motion.a>
             <motion.a
@@ -165,8 +165,19 @@ export function HeroSection() {
               custom={2}
               variants={iconVariants}
             >
-              <MailIcon className="h-6 w-6" />
+              <Mail className="h-6 w-6" />
               <span className="sr-only">Email</span>
+            </motion.a>
+            <motion.a
+              href="https://ko-fi.com/hachiki_hoshino"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+              custom={0}
+              variants={iconVariants}
+            >
+              <Coffee className="h-6 w-6" />
+              <span className="sr-only">Ko-Fi</span>
             </motion.a>
           </motion.div>
         </div>

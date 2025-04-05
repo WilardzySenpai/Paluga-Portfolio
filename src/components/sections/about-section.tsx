@@ -76,7 +76,7 @@ export function AboutSection() {
             </motion.p>
 
             <motion.p variants={itemVariants} className="mt-4 text-zinc-600 dark:text-zinc-400">
-              With over 10 years of experience in the industry, I've worked with a wide range of technologies and frameworks to build scalable solutions for clients across various sectors. My approach combines technical expertise with a deep understanding of user needs and business objectives.
+            With 6 years of experience in the coding industry, I've developed expertise in a variety of technologies and frameworks to create scalable, user-focused solutions. I strive to blend technical proficiency with a strong understanding of user needs and business goals, ensuring impactful results across diverse projects.
             </motion.p>
 
             <motion.div variants={itemVariants} className="mt-8 grid grid-cols-2 gap-4">

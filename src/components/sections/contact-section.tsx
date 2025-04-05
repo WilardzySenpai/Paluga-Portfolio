@@ -176,7 +176,7 @@ export function ContactSection() {
                   </h4>
                   <div className="flex space-x-4">
                     <a
-                      href="https://github.com/username"
+                      href="https://github.com/wilardzysenpai"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="bg-zinc-100 dark:bg-zinc-700 p-3 rounded-full text-zinc-600 dark:text-zinc-400 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
@@ -186,7 +186,7 @@ export function ContactSection() {
                       </svg>
                     </a>
                     <a
-                      href="https://linkedin.com/in/username"
+                      href="https://linkedin.com/in/hachiki"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="bg-zinc-100 dark:bg-zinc-700 p-3 rounded-full text-zinc-600 dark:text-zinc-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
@@ -196,7 +196,7 @@ export function ContactSection() {
                       </svg>
                     </a>
                     <a
-                      href="https://twitter.com/username"
+                      href="https://twitter.com/hachiki"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="bg-zinc-100 dark:bg-zinc-700 p-3 rounded-full text-zinc-600 dark:text-zinc-400 hover:bg-violet-100 dark:hover:bg-violet-900/30 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
