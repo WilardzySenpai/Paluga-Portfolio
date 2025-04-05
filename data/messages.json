@@ -1,0 +1,20 @@
+[
+  {
+    "id": "ca15eda7-749f-49e2-905d-f176b1f49f5f",
+    "name": "John Doe",
+    "email": "johndoe@gamil.com",
+    "subject": "Example",
+    "message": "Example Example",
+    "createdAt": "2025-04-04T15:27:18.061Z",
+    "read": true
+  },
+  {
+    "id": "4e75ef3d-c3c0-427a-aa75-1961f9826745",
+    "name": "John Doe 2",
+    "email": "johndoe2@gmail.com",
+    "subject": "Example 2",
+    "message": "Example Example",
+    "createdAt": "2025-04-04T15:48:59.702Z",
+    "read": true
+  }
+]
