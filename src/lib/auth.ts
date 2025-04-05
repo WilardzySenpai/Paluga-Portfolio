@@ -1,3 +1,4 @@
+// src/lib/auth.ts
 import * as jose from 'jose';
 import { cookies } from 'next/headers';
 import { type User } from './db';
@@ -51,15 +52,15 @@ export async function verifyToken(token: string): Promise<JwtPayload | null> {
 // Set cookie remains synchronous using next/headers cookies()
 // Note: generateToken is now async, so call sites need 'await'
 export async function setAuthCookie(token: string): Promise<void> {
-   (await cookies()).set({
-      name: 'auth_token',
-      value: token,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24, // 24 hours in seconds
-      path: '/',
-      sameSite: 'strict',
-   });
+  (await cookies()).set({
+    name: 'auth_token',
+    value: token,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24, // 24 hours in seconds
+    path: '/',
+    sameSite: 'strict',
+  });
 }
 
 // Get cookie
@@ -76,57 +77,57 @@ export async function removeAuthCookie(): Promise<void> {
 
 // Get current user (now async)
 export async function getCurrentUser(): Promise<JwtPayload | null> {
-   const token = await getAuthCookie();
-   if (!token) return null;
-   return await verifyToken(token);
+  const token = await getAuthCookie();
+  if (!token) return null;
+  return await verifyToken(token);
 }
 
 // isAuthenticated (now async)
 export async function isAuthenticated(): Promise<boolean> {
   try {
-     return !!await getCurrentUser();
+    return !!await getCurrentUser();
   } catch (error) {
-     console.error('Authentication check failed:', error);
-     return false;
+    console.error('Authentication check failed:', error);
+    return false;
   }
 }
 
 // hasRole (now async)
 export async function hasRole(role: string): Promise<boolean> {
-   const user = await getCurrentUser();
-   return !!user?.role && user.role === role;
+  const user = await getCurrentUser();
+  return !!user?.role && user.role === role;
 }
 
 export function withAuth(handler: (req: Request & { user?: JwtPayload }, params?: any) => Promise<Response | NextResponse>) {
   return async (req: Request, params?: any) => {
-      try {
-          const cookieStore = await cookies();
-          const token = cookieStore.get('auth_token')?.value;
+    try {
+      const cookieStore = await cookies();
+      const token = cookieStore.get('auth_token')?.value;
 
-          if (!token) {
-              return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-                  status: 401,
-                  headers: { 'Content-Type': 'application/json' },
-              });
-          }
-
-          const decoded = await verifyToken(token);
-          if (!decoded) {
-              cookieStore.delete('auth_token');
-              return new Response(JSON.stringify({ error: 'Invalid token' }), {
-                  status: 401,
-                  headers: { 'Content-Type': 'application/json' },
-              });
-          }
-
-          const reqWithUser = Object.assign(req, { user: decoded });
-          return handler(reqWithUser, params);
-      } catch (error) {
-          console.error('Authentication middleware error:', error);
-          return new Response(JSON.stringify({ error: 'Internal server error' }), {
-              status: 500,
-              headers: { 'Content-Type': 'application/json' },
-          });
+      if (!token) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
+
+      const decoded = await verifyToken(token);
+      if (!decoded) {
+        cookieStore.delete('auth_token');
+        return new Response(JSON.stringify({ error: 'Invalid token' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      const reqWithUser = Object.assign(req, { user: decoded });
+      return handler(reqWithUser, params);
+    } catch (error) {
+      console.error('Authentication middleware error:', error);
+      return new Response(JSON.stringify({ error: 'Internal server error' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
   };
 }
