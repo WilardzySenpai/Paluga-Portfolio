@@ -1,47 +1,21 @@
-Copyright (c) 2025 Willard James Paluga. All Rights Reserved.
+MIT License
 
-==========================
-Proprietary License Notice
-==========================
+Copyright (c) 2025 Hachiki
 
-This software, including its source code, design elements, visual assets, content (text, images, videos), and documentation (collectively, "the Portfolio"), is the proprietary and confidential property of Willard James Paluga ("the Copyright Holder").
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-**Grant of Limited License:**
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Permission is hereby granted, free of charge, solely to view the compiled and presented version of the Portfolio website as publicly accessible through a standard web browser for the purpose of evaluating the professional work and capabilities of the Copyright Holder.
-
-**Restrictions:**
-
-Under no circumstances is permission granted to:
-
-1.  **Copy or Reproduce:** Copy, reproduce, duplicate, or clone any part of the Portfolio's source code, design, assets, or content in any form, electronic or otherwise.
-2.  **Modify or Adapt:** Modify, adapt, translate, reverse engineer, decompile, disassemble, or create derivative works based on the Portfolio or any part thereof.
-3.  **Distribute or Sublicense:** Distribute, redistribute, sublicense, sell, rent, lease, lend, or otherwise transfer the Portfolio's source code, design, assets, or any rights associated with it to any third party.
-4.  **Use for Other Projects:** Use any part of the Portfolio's code, design, assets, or content as a basis for, or inclusion in, any other software application, website, theme, template, or project, whether commercial or non-commercial.
-5.  **Remove Notices:** Remove, alter, or obscure any copyright, trademark, or other proprietary notices contained within or displayed by the Portfolio.
-
-**Reservation of Rights:**
-
-All rights, title, and interest in and to the Portfolio, including all intellectual property rights (such as copyright, trademarks, and trade secrets), are and shall remain the exclusive property of the Copyright Holder. No rights are granted other than the limited permission to view the publicly presented website as stated above.
-
-**Disclaimer of Warranty:**
-
-THE PORTFOLIO IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
-
-**Limitation of Liability:**
-
-IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE PORTFOLIO OR THE USE OR OTHER DEALINGS IN THE PORTFOLIO.
-
-**Governing Law:**
-
-This License shall be governed by and construed in accordance with the laws of Philippines, without regard to its conflict of law principles.
-
-**Enforcement:**
-
-Any unauthorized use, reproduction, modification, or distribution of the Portfolio constitutes copyright infringement and will be prosecuted to the fullest extent of the law, potentially resulting in civil liability and/or criminal penalties. The Copyright Holder reserves the right to seek injunctive relief, monetary damages, and legal fees for any infringement of their rights.
-
-**Contact:**
-
-For inquiries regarding licensing or permissions beyond the scope of this notice, please contact the Copyright Holder at paluga.willardjames.arlan@gmail.com.
-
----
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
