@@ -13,7 +13,7 @@ import { Toaster as SonnerToaster } from "sonner";
 // const geistMono = Geist_Mono({ ... });
 
 export const metadata: Metadata = {
-  title: "Premium Developer Portfolio",
+  title: "Willard Portfolio",
   description: "Full-Stack Architect Building Scalable Solutions",
   keywords: ["developer", "portfolio", "full-stack", "developer", "react", "next.js", "bun"],
 };

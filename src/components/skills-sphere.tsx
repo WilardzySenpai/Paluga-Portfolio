@@ -145,6 +145,28 @@ function SkillNode({ skill, position, isDarkMode, delay, isMobile }: SkillNodePr
 }
 
 export function SkillsSphere({ skills }: SkillSphereProps) {
+  const [webglSupported, setWebglSupported] = useState(true);
+
+  useEffect(() => {
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+    setWebglSupported(!!gl);
+  }, []);
+
+  if (!webglSupported) {
+    return (
+      <div className="w-full h-[450px] md:h-[600px] flex items-center justify-center bg-zinc-100 dark:bg-zinc-900">
+        <p className="text-zinc-600 dark:text-zinc-400">
+          3D visualization not supported on this device
+        </p>
+      </div>
+    );
+  }
+
+  return <ActualSkillsSphere skills={skills} />;
+}
+
+export function ActualSkillsSphere({ skills }: SkillSphereProps) {
   return (
     <motion.div
       className="w-full h-[450px] md:h-[600px] cursor-grab active:cursor-grabbing" // Adjusted height and cursor
