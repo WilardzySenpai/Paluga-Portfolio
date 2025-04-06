@@ -131,7 +131,7 @@ export function Footer() {
           <div>
              <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-4 uppercase tracking-wider">Contact</h3> {/* Adjusted styling */}
             <address className="not-italic text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
-              <p>San Francisco, California</p> {/* Keep location generic or make editable */}
+              <p>Quezon City, Philppines</p>
               <p className="mt-2">
                 <a
                   href={emailAddress}
