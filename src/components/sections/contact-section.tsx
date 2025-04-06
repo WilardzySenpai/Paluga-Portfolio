@@ -134,11 +134,12 @@ export function ContactSection() {
                     <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-full mr-4">
                       <MailIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                     </div>
-                    <div>
+                    {/* Add min-w-0 to allow shrinking */}
+                    <div className="min-w-0">
                       <h4 className="font-medium text-zinc-900 dark:text-zinc-100">Email</h4>
                       <a
                         href="mailto:paluga.willardjames.arlan@gmail.com"
-                        className="text-zinc-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                        className="text-zinc-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors break-words"
                       >
                         paluga.willardjames.arlan@gmail.com
                       </a>
