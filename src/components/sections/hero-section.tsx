@@ -80,23 +80,23 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden py-16 lg:py-24">
-      {/* Abstract background */}
+    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden py-10 md:py-16 lg:py-24">
+      {/* Abstract background - adjusted for better mobile view */}
       <motion.div
-        className="absolute inset-0 -z-10 opacity-20 dark:opacity-10 pointer-events-none"
+        className="absolute inset-0 -z-10 opacity-10 sm:opacity-20 dark:opacity-5 sm:dark:opacity-10 pointer-events-none"
         initial="hidden"
         animate="visible"
         variants={backgroundVariants}
       >
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-purple-400 to-indigo-600 rounded-full filter blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-to-tr from-pink-400 to-purple-600 rounded-full filter blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-blue-400 to-teal-500 rounded-full filter blur-3xl opacity-20" />
+        <div className="absolute top-0 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-gradient-to-br from-purple-400 to-indigo-600 rounded-full filter blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-[250px] md:w-[400px] h-[250px] md:h-[400px] bg-gradient-to-tr from-pink-400 to-purple-600 rounded-full filter blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[350px] md:w-[600px] h-[350px] md:h-[600px] bg-gradient-to-r from-blue-400 to-teal-500 rounded-full filter blur-3xl opacity-20" />
       </motion.div>
 
-      <div className="container max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div ref={ref} className="max-w-3xl mx-auto text-center">
           <motion.h1
-            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 dark:from-purple-500 dark:via-violet-500 dark:to-indigo-500"
+            className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 dark:from-purple-500 dark:via-violet-500 dark:to-indigo-500"
             initial="hidden"
             animate={controls}
             variants={headingVariants}
@@ -105,7 +105,7 @@ export function HeroSection() {
           </motion.h1>
 
           <motion.p
-            className="mt-6 text-lg lg:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto"
+            className="mt-4 sm:mt-6 text-base sm:text-lg lg:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto px-2 sm:px-0"
             initial="hidden"
             animate={controls}
             variants={textVariants}
@@ -115,17 +115,17 @@ export function HeroSection() {
           </motion.p>
 
           <motion.div
-            className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
+            className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 sm:px-0"
             initial="hidden"
             animate={controls}
             variants={buttonVariants}
           >
-            <Button asChild size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-0">
+            <Button asChild size="lg" className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-0">
               <Link href="#projects">
                 View Projects <ArrowDownIcon className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg">
+            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto mt-2 sm:mt-0">
               <Link href="#contact">
                 Get in Touch
               </Link>
@@ -133,7 +133,7 @@ export function HeroSection() {
           </motion.div>
 
           <motion.div
-            className="mt-12 flex justify-center gap-6"
+            className="mt-10 sm:mt-12 flex justify-center gap-6 mb-10 sm:mb-0"
             initial="hidden"
             animate={controls}
           >
@@ -145,7 +145,7 @@ export function HeroSection() {
               custom={0}
               variants={iconVariants}
             >
-              <Github className="h-6 w-6" />
+              <Github className="h-5 w-5 sm:h-6 sm:w-6" />
               <span className="sr-only">GitHub</span>
             </motion.a>
             <motion.a
@@ -156,7 +156,7 @@ export function HeroSection() {
               custom={1}
               variants={iconVariants}
             >
-              <Linkedin className="h-6 w-6" />
+              <Linkedin className="h-5 w-5 sm:h-6 sm:w-6" />
               <span className="sr-only">LinkedIn</span>
             </motion.a>
             <motion.a
@@ -165,7 +165,7 @@ export function HeroSection() {
               custom={2}
               variants={iconVariants}
             >
-              <Mail className="h-6 w-6" />
+              <Mail className="h-5 w-5 sm:h-6 sm:w-6" />
               <span className="sr-only">Email</span>
             </motion.a>
             <motion.a
@@ -173,19 +173,19 @@ export function HeroSection() {
               target="_blank"
               rel="noopener noreferrer"
               className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
-              custom={0}
+              custom={3}
               variants={iconVariants}
             >
-              <Coffee className="h-6 w-6" />
+              <Coffee className="h-5 w-5 sm:h-6 sm:w-6" />
               <span className="sr-only">Ko-Fi</span>
             </motion.a>
           </motion.div>
         </div>
       </div>
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator - with improved positioning for mobile */}
       <motion.div
-        className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
+        className="absolute bottom-4 sm:bottom-10 left-1/2 transform -translate-x-1/2"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{
@@ -195,7 +195,7 @@ export function HeroSection() {
           repeatType: "reverse",
         }}
       >
-        <ArrowDownIcon className="h-6 w-6 text-zinc-400" />
+        <ArrowDownIcon className="h-5 w-5 sm:h-6 sm:w-6 text-zinc-400" />
       </motion.div>
     </section>
   )

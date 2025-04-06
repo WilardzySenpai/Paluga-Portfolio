@@ -16,7 +16,7 @@ export default function Home() {
         <HeroSection />
         {/* Wrap sections in <section> or <div> if needed for styling/layout */}
         <AboutSection />
-        {/* <SkillsSection /> */}
+        <SkillsSection />
         <ProjectsSection />
         <OfferingsSection />
         <ContactSection />
