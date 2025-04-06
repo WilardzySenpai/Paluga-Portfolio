@@ -160,7 +160,7 @@ export function MainNav() {
                 </nav>
                  {/* Optional: Add social links or other elements at the bottom */}
                  <div className="mt-auto pt-6 border-t dark:border-zinc-800 text-center text-xs text-zinc-500">
-                    © {new Date().getFullYear()} Your Name
+                    © {new Date().getFullYear()} Willard James Paluga
                  </div>
               </div>
             </SheetContent>
