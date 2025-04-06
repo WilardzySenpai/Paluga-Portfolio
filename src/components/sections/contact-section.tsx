@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
-import { MapPinIcon, MailIcon, PhoneIcon, SendIcon, CheckCircleIcon } from 'lucide-react'
+import { MapPinIcon, MailIcon, PhoneIcon, SendIcon, CheckCircleIcon, ConstructionIcon, InfoIcon } from 'lucide-react'
 
 // Contact form schema
 const formSchema = z.object({
@@ -20,6 +20,9 @@ const formSchema = z.object({
   subject: z.string().min(5, { message: "Subject must be at least 5 characters." }),
   message: z.string().min(10, { message: "Message must be at least 10 characters." }),
 });
+
+// --- Control flag ---
+const isContactFormActive = false;
 
 export function ContactSection() {
   const ref = useRef(null)
@@ -212,115 +215,134 @@ export function ContactSection() {
 
             {/* Contact Form */}
             <motion.div variants={itemVariants} className="order-1 lg:order-2">
-              <div className="bg-white dark:bg-zinc-800 rounded-2xl p-8 border border-zinc-200 dark:border-zinc-700 shadow-sm">
+              <div className="bg-white dark:bg-zinc-800 rounded-2xl p-8 border border-zinc-200 dark:border-zinc-700 shadow-sm min-h-[500px] flex flex-col">
                 <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-6">
                   Send a Message
                 </h3>
 
-                {isSuccess ? (
-                  <div className="flex flex-col items-center justify-center py-12">
-                    <CheckCircleIcon className="h-16 w-16 text-green-500 mb-4" />
-                    <h4 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50 mb-2">
-                      Message Sent!
-                    </h4>
-                    <p className="text-zinc-600 dark:text-zinc-400 text-center">
-                      Thank you for reaching out. I'll get back to you as soon as possible.
-                    </p>
-                    <Button
-                      variant="outline"
-                      className="mt-6"
-                      onClick={() => setIsSuccess(false)}
-                    >
-                      Send Another Message
-                    </Button>
-                  </div>
-                ) : (
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                          control={form.control}
-                          name="name"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Name</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Your name" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="email"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Email</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Your email address" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                {/* === CONDITIONAL RENDERING START === */}
+                {isContactFormActive ? (
+                  <>
+                    {isSuccess ? (
+                      <div className="flex flex-col items-center justify-center py-12">
+                        <CheckCircleIcon className="h-16 w-16 text-green-500 mb-4" />
+                        <h4 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50 mb-2">
+                          Message Sent!
+                        </h4>
+                        <p className="text-zinc-600 dark:text-zinc-400 text-center">
+                          Thank you for reaching out. I'll get back to you as soon as possible.
+                        </p>
+                        <Button
+                          variant="outline"
+                          className="mt-6"
+                          onClick={() => setIsSuccess(false)}
+                        >
+                          Send Another Message
+                        </Button>
                       </div>
+                    ) : (
+                      <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <FormField
+                              control={form.control}
+                              name="name"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Name</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Your name" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
 
-                      <FormField
-                        control={form.control}
-                        name="subject"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Subject</FormLabel>
-                            <FormControl>
-                              <Input placeholder="What is this about?" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                            <FormField
+                              control={form.control}
+                              name="email"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Email</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Your email address" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
 
-                      <FormField
-                        control={form.control}
-                        name="message"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Message</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Tell me about your project or inquiry..."
-                                className="resize-none min-h-32"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                          <FormField
+                            control={form.control}
+                            name="subject"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Subject</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="What is this about?" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
 
-                      <Button
-                        type="submit"
-                        className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-0"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? (
-                          <span className="flex items-center">
-                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Sending...
-                          </span>
-                        ) : (
-                          <span className="flex items-center">
-                            <SendIcon className="mr-2 h-4 w-4" /> Send Message
-                          </span>
-                        )}
-                      </Button>
-                    </form>
-                  </Form>
+                          <FormField
+                            control={form.control}
+                            name="message"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Message</FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    placeholder="Tell me about your project or inquiry..."
+                                    className="resize-none min-h-32"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <Button
+                            type="submit"
+                            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-0"
+                            disabled={isSubmitting}
+                          >
+                            {isSubmitting ? (
+                              <span className="flex items-center">
+                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Sending...
+                              </span>
+                            ) : (
+                              <span className="flex items-center">
+                                <SendIcon className="mr-2 h-4 w-4" /> Send Message
+                              </span>
+                            )}
+                          </Button>
+                        </form>
+                      </Form>
+                    )}
+                  </>
+                ) : (
+                  // Render disabled message if not active
+                  <div className="flex-grow flex flex-col items-center justify-center text-center py-12 px-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-dashed border-zinc-300 dark:border-zinc-700">
+                    <ConstructionIcon className="h-12 w-12 text-amber-500 mb-4" />
+                    {/* Or use <InfoIcon className="h-12 w-12 text-blue-500 mb-4" /> */}
+                    <h4 className="text-lg font-semibold text-zinc-700 dark:text-zinc-300 mb-2">
+                      Contact Form Currently Unavailable
+                    </h4>
+                    <p className="text-zinc-500 dark:text-zinc-400">
+                      This form is under maintenance or not yet active. Please use the contact details provided.
+                    </p>
+                  </div>
                 )}
+                {/* === CONDITIONAL RENDERING END === */}
+
               </div>
             </motion.div>
           </div>
