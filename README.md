@@ -1,6 +1,6 @@
 # Willard James Paluga
 
-![Willard's Profile](https://paluga-portfolio.vercel.app/paluge.png)
+![Willard's Profile](https://paluga-portfolio.vercel.app/paluga.png)
 
 ## Contact Information
 
