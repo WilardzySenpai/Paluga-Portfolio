@@ -2,11 +2,15 @@
 
 import * as jose from 'jose';
 import { cookies } from 'next/headers';
-// Import the Mongoose User interface and potentially ObjectId type
-import { type IUser } from './db';
-import { Types } from 'mongoose'; // Import Types
 import { NextResponse } from 'next/server';
+// --- Import ONLY from types.ts ---
+import type { JwtPayload as BaseJwtPayload, BaseUser } from './types'; // Import with alias if needed, or directly
 
+// --- ADD THIS RE-EXPORT LINE ---
+export type { BaseJwtPayload as JwtPayload }; // Re-export the type, possibly renaming back
+// Or if you didn't use an alias during import:
+// export type { JwtPayload };
+// --- END RE-EXPORT ---
 
 const JWT_SECRET_STRING = process.env.JWT_SECRET;
 if (!JWT_SECRET_STRING) {
@@ -16,25 +20,22 @@ const JWT_SECRET = new TextEncoder().encode(JWT_SECRET_STRING);
 const JWT_ALG = 'HS256';
 const JWT_EXPIRES_IN = '24h';
 
-export type JwtPayload = {
-  // Use MongoDB's _id (as a string) for userId
-  userId: string;
-  username: string;
-  role: string;
-  // Standard JWT claims (optional but good practice)
-  // iat?: number; // Issued at (added by jose)
-  // exp?: number; // Expiration time (added by jose)
-};
+// export type JwtPayload = {
+//   // Use MongoDB's _id (as a string) for userId
+//   userId: string;
+//   username: string;
+//   role: string;
+//   // Standard JWT claims (optional but good practice)
+//   // iat?: number; // Issued at (added by jose)
+//   // exp?: number; // Expiration time (added by jose)
+// };
 
 // Generate a JWT token for a user (now accepts IUser)
-export async function generateToken(user: IUser): Promise<string> {
-  // IMPORTANT: Convert MongoDB ObjectId (_id) to string for JWT payload
-  const userIdString = user._id instanceof Types.ObjectId ? user._id.toString() : String(user._id);
-
-  const payload: JwtPayload = {
-    userId: userIdString, // Use string representation of _id
-    username: user.username,
-    role: user.role,
+export async function generateToken(userData: { userId: string; username: string; role: string; }): Promise<string> {
+  const payload: BaseJwtPayload = { // Use the imported type
+      userId: userData.userId,
+      username: userData.username,
+      role: userData.role,
   };
 
   const token = await new jose.SignJWT(payload)
@@ -47,11 +48,11 @@ export async function generateToken(user: IUser): Promise<string> {
 }
 
 // Verify and decode a JWT token (remains async)
-export async function verifyToken(token: string): Promise<JwtPayload | null> {
+export async function verifyToken(token: string): Promise<BaseJwtPayload | null> {
   if (!token) return null;
   try {
-    const { payload } = await jose.jwtVerify<JwtPayload>(token, JWT_SECRET);
-    // Payload should conform to JwtPayload structure after verification
+    const { payload } = await jose.jwtVerify<BaseJwtPayload>(token, JWT_SECRET);
+
     return payload;
   } catch (error) {
     // Handle specific JWT errors if needed (e.g., expired, invalid signature)
@@ -90,7 +91,7 @@ export async function removeAuthCookie(): Promise<void> {
 }
 
 // --- User/Auth state functions remain the same, relying on verifyToken ---
-export async function getCurrentUser(): Promise<JwtPayload | null> {
+export async function getCurrentUser(): Promise<BaseJwtPayload | null> {
   const token = await getAuthCookie();
   if (!token) return null;
   return await verifyToken(token);
@@ -112,7 +113,7 @@ export async function hasRole(role: string): Promise<boolean> {
 
 // --- withAuth middleware wrapper remains the same logic ---
 // Note: Ensure `verifyToken` correctly returns null for invalid/expired tokens
-export function withAuth(handler: (req: Request & { user?: JwtPayload }, params?: any) => Promise<Response | NextResponse>) {
+export function withAuth(handler: (req: Request & { user?: BaseJwtPayload }, params?: any) => Promise<Response | NextResponse>) {
   return async (req: Request, params?: any) => {
     try {
       const cookieStore = await cookies();
@@ -131,7 +132,7 @@ export function withAuth(handler: (req: Request & { user?: JwtPayload }, params?
       }
 
       // Attach decoded user payload to the request object
-      const reqWithUser = Object.assign(req, { user: decoded });
+      const reqWithUser = Object.assign(req, { user: decoded as BaseJwtPayload });
       return handler(reqWithUser, params); // Proceed to the actual route handler
 
     } catch (error) {

@@ -2,9 +2,11 @@
 
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+// Import DB functions that return Mongoose documents
 import { validateCredentials } from '@/lib/db';
+// Import auth functions that expect plain data/JWTs
 import { generateToken, setAuthCookie } from '@/lib/auth';
-import { cookies } from 'next/headers'; // Import cookies
+import { cookies } from 'next/headers';
 
 // Login form schema
 const loginSchema = z.object({
@@ -30,9 +32,9 @@ export async function POST(req: Request) {
     const { username, password } = validationResult.data;
 
     // Validate credentials against the database
-    const user = await validateCredentials(username, password);
+    const userDocument = await validateCredentials(username, password);
 
-    if (!user) {
+    if (!userDocument) {
       console.warn(`Login failed for username: ${username}`);
       // Generic error for security
       return NextResponse.json(
@@ -41,8 +43,15 @@ export async function POST(req: Request) {
       );
     }
 
+    // --- Extract data needed for the modified generateToken ---
+    const tokenData = {
+      userId: userDocument._id.toString(), // Convert ObjectId to string
+      username: userDocument.username,
+      role: userDocument.role,
+    };
+
     // Credentials are valid, generate JWT
-    const token = await generateToken(user);
+    const token = await generateToken(tokenData);
 
     // Create the success response
     const response = NextResponse.json(

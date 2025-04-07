@@ -2,6 +2,7 @@
 
 import mongoose, { Schema, Document, Model, Types } from 'mongoose';
 import bcrypt from 'bcrypt';
+import type { BaseContactMessage, BaseUser, AddMessageInput } from '@/lib/types';
 
 // --- Environment Variables ---
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -65,14 +66,16 @@ async function connectMongo(): Promise<typeof mongoose> {
 // --- Define Mongoose Schemas and Models ---
 
 // Contact Message Schema
-export interface IContactMessage extends Document {
+export interface IContactMessage extends BaseContactMessage, Document {
+    _id: Types.ObjectId; // Override _id to be ObjectId within Mongoose context
+    createdAt: Date;
+    updatedAt: Date;
+    // Ensure required fields from Base are reflected if not optional
     name: string;
     email: string;
     subject: string;
     message: string;
     read: boolean;
-    createdAt: Date; // Mongoose uses Date type
-    // _id is automatically added by Mongoose
 }
 
 const ContactMessageSchema: Schema = new Schema({
@@ -90,14 +93,14 @@ const Message: Model<IContactMessage> = mongoose.models.Message || mongoose.mode
 
 
 // User Schema
-export interface IUser extends Document {
+export interface IUser extends BaseUser, Document {
+    _id: Types.ObjectId;
     username: string;
-    passwordHash: string;
-    role: 'admin'; // Keep role simple for now
+    passwordHash: string; // Required for comparison
+    role: 'admin';
     createdAt: Date;
     updatedAt: Date;
     comparePassword(candidatePassword: string): Promise<boolean>;
-    // _id is automatically added
 }
 
 const UserSchema: Schema<IUser> = new Schema({
@@ -138,13 +141,13 @@ UserSchema.methods.comparePassword = function (candidatePassword: string): Promi
 
 // --- Define Input Type for Adding Messages ---
 // This defines the plain object structure expected as input
-export type AddMessageInput = {
-    name: string;
-    email: string;
-    subject: string;
-    message: string;
-    // Note: 'read' is intentionally omitted, as it defaults to false in the schema
-};
+// export type AddMessageInput = {
+//     name: string;
+//     email: string;
+//     subject: string;
+//     message: string;
+//     // Note: 'read' is intentionally omitted, as it defaults to false in the schema
+// };
 
 export interface LeanContactMessage {
     id: string; // Use 'id' here
