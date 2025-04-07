@@ -1,4 +1,4 @@
-// src/lib/offering-data.ts
+// src/lib/projects-data.ts
 
 export type Project = {
     id: string;

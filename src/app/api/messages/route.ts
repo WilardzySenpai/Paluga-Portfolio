@@ -1,4 +1,5 @@
 // src/app/api/messages/route.ts
+
 import { NextResponse } from 'next/server';
 import { getMessages, initDatabase } from '@/lib/db';
 import { withAuth } from '@/lib/auth'; // Assuming withAuth correctly handles Request context

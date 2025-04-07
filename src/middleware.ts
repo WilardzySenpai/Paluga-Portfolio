@@ -1,4 +1,5 @@
 // src/middleware.ts
+
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyToken, type JwtPayload } from '@/lib/auth'; // Assuming verifyToken is async and types exported

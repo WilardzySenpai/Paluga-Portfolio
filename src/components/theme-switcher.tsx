@@ -24,7 +24,7 @@ export function ThemeSwitcher() {
   };
 
   // Create a motion-enhanced version of your Button component
-  const MotionButton = motion(Button);
+  const MotionButton = motion.create(Button);
 
   return (
     <div className="relative flex items-center justify-center h-10 w-10">
