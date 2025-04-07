@@ -2,11 +2,7 @@
 
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { addMessage, initDatabase } from '@/lib/db';
-
-// Initialize the database eagerly when the module loads
-// This might run multiple times in dev, but ensures DB exists before first request
-initDatabase().catch(console.error);
+import { addMessage } from '@/lib/db';
 
 // Contact form schema (ensure it matches frontend)
 const formSchema = z.object({

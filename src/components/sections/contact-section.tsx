@@ -1,7 +1,7 @@
 // src/components/sections/contact-section.tsx
 "use client"
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect  } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
-import { MapPinIcon, MailIcon, PhoneIcon, SendIcon, CheckCircleIcon, ConstructionIcon, InfoIcon } from 'lucide-react'
+import { MapPinIcon, MailIcon, PhoneIcon, SendIcon, CheckCircleIcon, ConstructionIcon, InfoIcon, Loader2 } from 'lucide-react'
 
 // Contact form schema
 const formSchema = z.object({
@@ -29,6 +29,36 @@ export function ContactSection() {
   const isInView = useInView(ref, { once: true, margin: "-100px" })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+
+  // --- NEW: State for contact form status ---
+  const [isContactFormActive, setIsContactFormActive] = useState<boolean | null>(null); // Start as null to indicate loading
+  const [isLoadingStatus, setIsLoadingStatus] = useState<boolean>(true);
+
+  // --- NEW: Fetch status on mount ---
+  useEffect(() => {
+    const fetchStatus = async () => {
+      setIsLoadingStatus(true); // Set loading true at the start
+      try {
+        const response = await fetch('/api/settings/contact-form'); // Fetch from public endpoint
+        if (!response.ok) {
+           console.error(`Failed to fetch contact status: ${response.statusText}`);
+           // Decide default behavior on error - often safest to assume inactive
+           setIsContactFormActive(false);
+           return; // Exit early
+        }
+        const data = await response.json();
+        setIsContactFormActive(data.isActive);
+      } catch (error) {
+        console.error('Error fetching contact form status:', error);
+        // Default to inactive on fetch error
+        setIsContactFormActive(false);
+      } finally {
+        setIsLoadingStatus(false);
+      }
+    };
+
+    fetchStatus();
+  }, []); // Empty dependency array means run once on mount
 
   // Define form
   const form = useForm<z.infer<typeof formSchema>>({
@@ -222,7 +252,11 @@ export function ContactSection() {
                 </h3>
 
                 {/* === CONDITIONAL RENDERING START === */}
-                {isContactFormActive ? (
+                {isLoadingStatus ? ( // Show loading state first
+                   <div className="flex-grow flex flex-col items-center justify-center text-center py-12 px-4">
+                     <Loader2 className="h-8 w-8 animate-spin text-zinc-400 dark:text-zinc-500" />
+                   </div>
+                ) : isContactFormActive === true ? ( // Check for explicit true
                   <>
                     {isSuccess ? (
                       <div className="flex flex-col items-center justify-center py-12">
@@ -329,16 +363,14 @@ export function ContactSection() {
                       </Form>
                     )}
                   </>
-                ) : (
-                  // Render disabled message if not active
+                ) : ( // Render disabled message if status is false or null (after loading)
                   <div className="flex-grow flex flex-col items-center justify-center text-center py-12 px-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-dashed border-zinc-300 dark:border-zinc-700">
                     <ConstructionIcon className="h-12 w-12 text-amber-500 mb-4" />
-                    {/* Or use <InfoIcon className="h-12 w-12 text-blue-500 mb-4" /> */}
                     <h4 className="text-lg font-semibold text-zinc-700 dark:text-zinc-300 mb-2">
                       Contact Form Currently Unavailable
                     </h4>
                     <p className="text-zinc-500 dark:text-zinc-400">
-                      This form is under maintenance or not yet active. Please use the contact details provided.
+                      This form is under maintenance or temporarily disabled. Please use the contact details provided.
                     </p>
                   </div>
                 )}

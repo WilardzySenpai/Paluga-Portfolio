@@ -2,12 +2,9 @@
 
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { validateCredentials, initDatabase } from '@/lib/db';
+import { validateCredentials } from '@/lib/db';
 import { generateToken, setAuthCookie } from '@/lib/auth';
 import { cookies } from 'next/headers'; // Import cookies
-
-// Initialize the database
-initDatabase().catch(console.error);
 
 // Login form schema
 const loginSchema = z.object({

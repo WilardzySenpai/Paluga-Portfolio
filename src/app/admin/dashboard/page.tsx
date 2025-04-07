@@ -27,9 +27,11 @@ import { AlertTriangleIcon, CheckIcon, InboxIcon, LogOutIcon, MessageSquareIcon,
 // Import Form components
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label"; 
 
 type Message = {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   subject: string;
@@ -55,22 +57,33 @@ type PasswordFormValues = z.infer<typeof passwordFormSchema>;
 export default function AdminDashboard() {
   const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loadingMessages, setLoadingMessages] = useState<boolean>(true); // Renamed for clarity
   const [activeTab, setActiveTab] = useState<string>('messages');
   const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
   const [isChangingPassword, setIsChangingPassword] = useState<boolean>(false);
-
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const [messageToDeleteId, setMessageToDeleteId] = useState<string | null>(null);
   const [isDeletingMessage, setIsDeletingMessage] = useState<boolean>(false);
+
+  // --- NEW: State for Settings ---
+  const [contactFormEnabled, setContactFormEnabled] = useState<boolean>(false); // Default state
+  const [isLoadingSettings, setIsLoadingSettings] = useState<boolean>(false);
+  const [isUpdatingSetting, setIsUpdatingSetting] = useState<boolean>(false); // For the switch loader
 
   // Fetch messages on component mount
   useEffect(() => {
     fetchMessages();
   }, []);
 
+  // --- NEW: Fetch setting when Settings tab is active ---
+  useEffect(() => {
+    if (activeTab === 'settings') {
+      fetchContactFormSetting();
+    }
+  }, [activeTab]); // Re-run when activeTab changes
+
   const fetchMessages = async () => {
-    setLoading(true); // Ensure loading state is true at start
+    setLoadingMessages(true); // Ensure loading state is true at start
     try {
       const response = await fetch('/api/messages'); // Assumes API route exists
 
@@ -100,7 +113,64 @@ export default function AdminDashboard() {
         router.push('/admin/login');
       }
     } finally {
-      setLoading(false);
+      setLoadingMessages(false);
+    }
+  };
+
+  // --- NEW: Function to fetch contact form setting ---
+  const fetchContactFormSetting = async () => {
+    setIsLoadingSettings(true);
+    try {
+      const response = await fetch('/api/admin/settings/contact-form'); // Use the admin GET endpoint
+      if (!response.ok) {
+        // Handle specific errors like 401 if necessary
+         if (response.status === 401) {
+           toast.error('Unauthorized. Cannot fetch settings.');
+           // Potentially redirect or disable settings UI
+           return;
+         }
+        throw new Error(`Failed to fetch settings: ${response.statusText}`);
+      }
+      const data = await response.json();
+      setContactFormEnabled(data.isActive); // Update state with fetched value
+    } catch (error: any) {
+      console.error('Error fetching contact form setting:', error);
+      toast.error(`Failed to load settings: ${error.message}`);
+      // Keep default state or handle error appropriately
+    } finally {
+      setIsLoadingSettings(false);
+    }
+  };
+
+  // --- NEW: Function to handle toggle change ---
+  const handleContactFormToggle = async (checked: boolean) => {
+    setIsUpdatingSetting(true);
+    const optimisticPreviousState = contactFormEnabled; // Store previous state for rollback
+    setContactFormEnabled(checked); // Optimistic UI update
+
+    try {
+      const response = await fetch('/api/admin/settings/contact-form', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: checked }), // Send the new boolean value
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setContactFormEnabled(optimisticPreviousState); // Rollback on failure
+        throw new Error(data.error || 'Failed to update setting');
+      }
+
+      toast.success(data.message || 'Contact form status updated.');
+      // No need to set state again if API confirms the value matches 'checked'
+
+    } catch (error: any) {
+      console.error('Error updating contact form setting:', error);
+      toast.error(`Failed to update setting: ${error.message}`);
+      setContactFormEnabled(optimisticPreviousState); // Rollback on failure
+    } finally {
+      setIsUpdatingSetting(false);
     }
   };
 
@@ -123,9 +193,9 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleMarkAsRead = async (id: string) => {
+  const handleMarkAsRead = async (messageId: string) => {
     try {
-      const response = await fetch(`/api/messages/${id}/read`, {
+      const response = await fetch(`/api/messages/${messageId}/read`, {
         method: 'PATCH',
       });
 
@@ -136,16 +206,13 @@ export default function AdminDashboard() {
       // Update the local state optimistically or re-fetch
       setMessages(prev =>
         prev.map(message =>
-          message.id === id ? { ...message, read: true } : message
+          message._id === messageId ? { ...message, read: true } : message // Use _id here
         )
-          .sort((a, b) => { // Re-sort after marking as read
-            if (a.read !== b.read) {
-              return a.read ? 1 : -1;
-            }
+          .sort((a, b) => { // Re-sort
+            if (a.read !== b.read) return a.read ? 1 : -1;
             return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
           })
       );
-
       toast.success('Message marked as read');
     } catch (error: any) {
       console.error('Error marking message as read:', error);
@@ -154,8 +221,8 @@ export default function AdminDashboard() {
   };
 
   // handleDeleteMessage function:
-  const handleDeleteMessage = (id: string) => {
-    setMessageToDeleteId(id); // Store the ID of the message to delete
+  const handleDeleteMessage = (messageId: string) => {
+    setMessageToDeleteId(messageId); // Store the ID of the message to delete
     setIsDeleteAlertOpen(true); // Open the alert dialog
   };
 
@@ -178,7 +245,7 @@ export default function AdminDashboard() {
       }
 
       // Update the local state
-      setMessages(prev => prev.filter(message => message.id !== messageToDeleteId));
+      setMessages(prev => prev.filter(message => message._id !== messageToDeleteId));
 
       toast.success('Message deleted successfully', { id: deleteToastId });
       setIsDeleteAlertOpen(false); // Close the dialog on success
@@ -277,6 +344,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 transition-colors">
+      {/* Header */}
       <header className="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 py-4 sticky top-0 z-10"> {/* Sticky header */}
         <div className="container max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between"> {/* Adjusted padding */}
           <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">Admin Dashboard</h1>
@@ -368,8 +436,10 @@ export default function AdminDashboard() {
           <div className="flex-1 min-w-0"> {/* Added min-w-0 for flex shrink issues */}
             {/* We control content via state, no need for Tabs component here unless needed for styling */}
             <div className="w-full">
+              {/* Messages Tab */}
               {activeTab === 'messages' && (
                 <Card>
+                  {/* Card Header */}
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <MessageSquareIcon className="h-5 w-5 mr-2" />
@@ -386,7 +456,7 @@ export default function AdminDashboard() {
                   </CardHeader>
 
                   <CardContent>
-                    {loading ? (
+                    {loadingMessages ? (
                       <div className="flex items-center justify-center py-12 text-zinc-500">
                         <Loader2 className="h-8 w-8 animate-spin mr-3" />
                         <span>Loading messages...</span>
@@ -401,7 +471,7 @@ export default function AdminDashboard() {
                       <div className="divide-y divide-zinc-200 dark:divide-zinc-800 -mx-6"> {/* Negative margin to extend divider */}
                         {messages.map((message) => (
                           <div
-                            key={message.id}
+                            key={message._id}
                             className={`px-6 py-4 transition-colors ${!message.read
                               ? 'bg-purple-50 dark:bg-purple-950/30 hover:bg-purple-100 dark:hover:bg-purple-950/50'
                               : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/30'
@@ -430,7 +500,7 @@ export default function AdminDashboard() {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => handleMarkAsRead(message.id)}
+                                    onClick={() => handleMarkAsRead(message._id)}
                                     className="flex items-center gap-1"
                                     title="Mark as Read"
                                   >
@@ -440,9 +510,9 @@ export default function AdminDashboard() {
                                 )}
 
                                 {/* --- START: AlertDialog Implementation --- */}
-                                <AlertDialog open={isDeleteAlertOpen && messageToDeleteId === message.id} onOpenChange={(open: boolean | ((prevState: boolean) => boolean)) => {
+                                <AlertDialog open={isDeleteAlertOpen && messageToDeleteId === message._id} onOpenChange={(open: boolean | ((prevState: boolean) => boolean)) => {
                                   // Only trigger state changes related to this specific dialog instance
-                                  if (messageToDeleteId === message.id) {
+                                  if (messageToDeleteId === message._id) {
                                     setIsDeleteAlertOpen(open);
                                     if (!open) {
                                       // Reset message ID if dialog is closed (e.g., by clicking overlay/cancel)
@@ -457,14 +527,14 @@ export default function AdminDashboard() {
                                       size="sm"
                                       className="text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-700 dark:hover:bg-red-950/50 dark:hover:text-red-300 flex items-center gap-1"
                                       title="Delete Message"
-                                      onClick={() => handleDeleteMessage(message.id)} // Opens the dialog via state change
+                                      onClick={() => handleDeleteMessage(message._id)} // Opens the dialog via state change
                                     >
                                       <Trash2Icon className="h-4 w-4" />
                                       <span className="hidden sm:inline">Delete</span>
                                     </Button>
                                   </AlertDialogTrigger>
                                   {/* Render content only if this is the message being targeted */}
-                                  {messageToDeleteId === message.id && (
+                                  {messageToDeleteId === message._id && (
                                     <AlertDialogContent>
                                       <AlertDialogHeader>
                                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -610,27 +680,74 @@ export default function AdminDashboard() {
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <SettingsIcon className="h-5 w-5 mr-2" />
-                      <span>Dashboard Settings</span>
+                      <span>General Settings</span> {/* Changed title slightly */}
                     </CardTitle>
                     <CardDescription>
-                      Configure your dashboard preferences and account security.
+                      Manage general application settings.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex flex-col items-center justify-center py-12 text-zinc-500 dark:text-zinc-400">
-                      <AlertTriangleIcon className="h-12 w-12 mx-auto mb-4 text-yellow-500 opacity-80" /> {/* Warning color */}
-                      <h3 className="text-lg font-medium mb-2 text-zinc-800 dark:text-zinc-200">Security Alert</h3>
-                      <p className="max-w-md text-center mb-4">
-                        For security reasons, it's highly recommended to change the default administrator password.
-                      </p>
-                      <Button
-                        onClick={() => setActiveTab('profile')} // Navigate to profile tab
-                        variant="destructive" // Emphasize importance
-                      >
-                        Change Password
-                      </Button>
-                      {/* Add more settings options here later */}
-                    </div>
+                    {isLoadingSettings ? ( // Show loading indicator while fetching
+                      <div className="flex items-center justify-center py-12 text-zinc-500">
+                        <Loader2 className="h-6 w-6 animate-spin mr-3" />
+                        <span>Loading settings...</span>
+                      </div>
+                    ) : (
+                       // Use space-y for vertical spacing between settings
+                      <div className="space-y-6">
+                        {/* Contact Form Toggle */}
+                        <div className="flex items-center justify-between space-x-4 p-4 border rounded-lg bg-zinc-50 dark:bg-zinc-800/50 dark:border-zinc-700">
+                          <div className="space-y-0.5">
+                             {/* Link Label to Switch using htmlFor and id */}
+                            <Label htmlFor="contact-form-switch" className="text-base font-medium">
+                              Contact Form Status
+                            </Label>
+                            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                              Enable or disable the contact form on the public website.
+                            </p>
+                          </div>
+                          {/* Add loading indicator to the switch if needed */}
+                          <div className="relative">
+                            <Switch
+                              id="contact-form-switch" // ID for the label link
+                              checked={contactFormEnabled}
+                              onCheckedChange={handleContactFormToggle} // Use the handler
+                              disabled={isUpdatingSetting} // Disable while updating
+                              aria-label="Toggle contact form status"
+                            />
+                             {/* Optional: Spinner overlay during update */}
+                            {isUpdatingSetting && (
+                               <div className="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-black/50 rounded-full">
+                                  <Loader2 className="h-4 w-4 animate-spin text-zinc-500 dark:text-zinc-400" />
+                               </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Separator (optional) */}
+                        <hr className="dark:border-zinc-700"/>
+
+                        {/* Placeholder for future settings */}
+                         <div className="flex items-center justify-between space-x-2">
+                           Setting 2 ...
+                        </div>
+
+                         {/* Keep the security alert section if desired */}
+                        <div className="flex flex-col items-center justify-center py-12 text-zinc-500 dark:text-zinc-400 border-t dark:border-zinc-700 mt-6 pt-6">
+                          <AlertTriangleIcon className="h-12 w-12 mx-auto mb-4 text-yellow-500 opacity-80" />
+                          <h3 className="text-lg font-medium mb-2 text-zinc-800 dark:text-zinc-200">Security Alert</h3>
+                          <p className="max-w-md text-center mb-4">
+                            For security reasons, it's highly recommended to change the default administrator password if you haven't already.
+                          </p>
+                          <Button
+                            onClick={() => setActiveTab('profile')}
+                            variant="destructive"
+                          >
+                            Go to Profile Settings
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}

@@ -1,12 +1,9 @@
 // src/app/api/messages/route.ts
 
 import { NextResponse } from 'next/server';
-import { getMessages, initDatabase } from '@/lib/db';
+import { getMessages } from '@/lib/db';
 import { withAuth } from '@/lib/auth'; // Assuming withAuth correctly handles Request context
 import type { JwtPayload } from '@/lib/auth'; // Import type if needed
-
-// Initialize the database
-initDatabase().catch(console.error);
 
 // Extend Request type if `withAuth` adds user property
 interface AuthenticatedRequest extends Request {

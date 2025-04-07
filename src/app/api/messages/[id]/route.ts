@@ -1,12 +1,9 @@
 // src/app/api/messages/[id]/route.ts
 
 import { NextResponse } from 'next/server';
-import { deleteMessage, initDatabase } from '@/lib/db';
+import { deleteMessage } from '@/lib/db';
 import { withAuth } from '@/lib/auth';
 import type { JwtPayload } from '@/lib/auth';
-
-// Initialize the database
-initDatabase().catch(console.error);
 
 interface AuthenticatedRequest extends Request {
   user?: JwtPayload;

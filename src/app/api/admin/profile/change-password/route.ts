@@ -1,13 +1,10 @@
 // src/app/api/admin/profile/change-password/route.ts
+
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import bcrypt from 'bcrypt';
-import { getUserById, updateUserPassword, initDatabase } from '@/lib/db';
+import { getUserById, updateUserPassword } from '@/lib/db';
 import { withAuth } from '@/lib/auth';
 import type { JwtPayload } from '@/lib/auth';
-
-// Initialize DB
-initDatabase().catch(console.error);
 
 // Schema for password change request body
 const passwordChangeSchema = z.object({
@@ -50,6 +47,7 @@ const changePasswordHandler = async (req: AuthenticatedRequest) => {
         const { currentPassword, newPassword } = validationResult.data;
 
         // Fetch the current user data from DB
+        // NOTE: Fetch the full user document, not lean, if you need methods like comparePassword
         const currentUser = await getUserById(userId);
         if (!currentUser) {
             console.error(`Authenticated user ${userId} not found in DB during password change.`);
@@ -57,7 +55,7 @@ const changePasswordHandler = async (req: AuthenticatedRequest) => {
         }
 
         // Verify the current password
-        const isCurrentPasswordValid = await bcrypt.compare(currentPassword, currentUser.passwordHash);
+        const isCurrentPasswordValid = await currentUser.comparePassword(currentPassword);
         if (!isCurrentPasswordValid) {
             console.warn(`Incorrect current password provided for user ${userId}.`);
             return NextResponse.json(
@@ -70,7 +68,7 @@ const changePasswordHandler = async (req: AuthenticatedRequest) => {
         }
 
         // Update the password in the database (updateUserPassword handles hashing)
-        const updateSuccess = await updateUserPassword(userId, newPassword);
+        const updateSuccess = await updateUserPassword(userId, newPassword); 
 
         if (!updateSuccess) {
             console.error(`Failed to update password in DB for user ${userId}.`);
