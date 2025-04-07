@@ -4,6 +4,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyToken, type JwtPayload } from '@/lib/auth'; // Assuming verifyToken is async and types exported
 
+export const runtime = 'nodejs'; // Force Node.js runtime, disabling Edge
+
 const ADMIN_LOGIN_URL = '/admin/login';
 const ADMIN_DASHBOARD_URL = '/admin/dashboard';
 const API_ADMIN_PREFIX = '/api/admin/'; // Check specifically for API routes
